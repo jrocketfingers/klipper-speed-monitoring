@@ -16,7 +16,7 @@ This can run on any computer with Python on it, and it'll interface with both yo
 ```bash
 # Example config
 export INFLUXDB_URL="http://influxdb.local:8086"  # url to your InfluxDB instance
-export INFLUXDB_TOKEN="bunch of numbers and characters"  # token you generate
+export INFLUXDB_TOKEN="bunch of numbers and characters"  # token you generate in the InfluxDB UI
 export INFLUXDB_BUCKET="moonraker"
 export INFLUXDB_ORG="home"
 export BASE_MOONRAKER_HOST="klipper.local:7125"  # IP of your RaspberryPi (or anything else) running Klipper
