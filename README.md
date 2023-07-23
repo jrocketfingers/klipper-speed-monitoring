@@ -15,7 +15,7 @@ This can run on any computer with Python on it, and it'll interface with both yo
 - Copy `.env.template` to `.env`, edit the file
 ```bash
 # Example config
-export INFLUXDB_URL="http://influxdb.local"  # url to your InfluxDB instance
+export INFLUXDB_URL="http://influxdb.local:8086"  # url to your InfluxDB instance
 export INFLUXDB_TOKEN="bunch of numbers and characters"  # token you generate
 export INFLUXDB_BUCKET="moonraker"
 export INFLUXDB_ORG="home"
