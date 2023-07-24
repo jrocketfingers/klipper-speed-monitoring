@@ -14,6 +14,7 @@ INFLUXDB_TOKEN = os.environ["INFLUXDB_TOKEN"]
 INFLUXDB_BUCKET = os.environ["INFLUXDB_BUCKET"]
 INFLUXDB_ORG = os.environ["INFLUXDB_ORG"]
 BASE_MOONRAKER_HOST = os.environ["BASE_MOONRAKER_HOST"]
+DEBUG = os.getenv("DEBUG", False)
 
 
 write_client = influxdb_client.InfluxDBClient(
@@ -82,6 +83,11 @@ def process_data(data):
     current_time = datetime.utcnow()
 
     data_json = json.loads(data)
+    if DEBUG is True:
+        print(data_json)
+
+    point_time = datetime.utcnow()
+
     if "motion_report" in data_json.get("params", [{}])[0]:
         motion_report = data_json["params"][0]["motion_report"]
 
@@ -122,7 +128,7 @@ def process_data(data):
                 "live_extruder_velocity", motion_report["live_extruder_velocity"]
             )
 
-        point.time(datetime.utcnow(), WritePrecision.NS)
+        point.time(point_time, WritePrecision.NS)
 
         write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
 

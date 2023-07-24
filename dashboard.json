@@ -324,7 +324,7 @@
               "mode": "none"
             },
             "thresholdsStyle": {
-              "mode": "off"
+              "mode": "dashed"
             }
           },
           "mappings": [],
@@ -336,8 +336,8 @@
                 "value": null
               },
               {
-                "color": "red",
-                "value": 80
+                "color": "orange",
+                "value": 100
               }
             ]
           }
@@ -371,9 +371,37 @@
           },
           "query": "from(bucket: \"moonraker\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"motion_report\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"live_velocity\")",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${DS_INFLUXDB}"
+          },
+          "hide": false,
+          "query": "from(bucket: \"moonraker\")\r\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\r\n  |> filter(fn: (r) => r[\"_measurement\"] == \"motion_report\")\r\n  |> filter(fn: (r) => r[\"_field\"] == \"live_velocity\")\r\n  |> mean()\r\n  |> map(fn: (r) => ({ r with mean_live_velocity: r._value }))\r\n  |> drop(columns: [\"_value\", \"_start\", \"_stop\", \"source\"])",
+          "refId": "B"
         }
       ],
       "title": "Live speed",
+      "transformations": [
+        {
+          "id": "configFromData",
+          "options": {
+            "applyTo": {
+              "id": "byType",
+              "options": "number"
+            },
+            "configRefId": "B",
+            "mappings": [
+              {
+                "fieldName": "mean_live_velocity live_velocity",
+                "handlerKey": "threshold1",
+                "reducerId": "last"
+              }
+            ]
+          }
+        }
+      ],
       "type": "timeseries"
     }
   ],
@@ -392,6 +420,6 @@
   "timezone": "",
   "title": "Klipper speed monitoring",
   "uid": "c9fc162b-6c67-463f-8a72-3e31af47ce70",
-  "version": 8,
+  "version": 10,
   "weekStart": ""
 }
