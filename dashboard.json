@@ -193,7 +193,7 @@
           "refId": "A"
         }
       ],
-      "title": "Time spent at 0 speed",
+      "title": "Max time spent still",
       "type": "gauge"
     },
     {
@@ -201,6 +201,7 @@
         "type": "influxdb",
         "uid": "${DS_INFLUXDB}"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -284,7 +285,7 @@
           "refId": "A"
         }
       ],
-      "title": "Time since last move",
+      "title": "Time since last move (dwell time)",
       "type": "timeseries"
     },
     {
@@ -420,6 +421,6 @@
   "timezone": "",
   "title": "Klipper speed monitoring",
   "uid": "c9fc162b-6c67-463f-8a72-3e31af47ce70",
-  "version": 10,
+  "version": 11,
   "weekStart": ""
 }
