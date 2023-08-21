@@ -5,6 +5,7 @@ import json
 import requests
 import influxdb_client
 from datetime import datetime, timedelta
+from urllib3.exceptions import ReadTimeoutError
 
 from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
@@ -14,7 +15,7 @@ INFLUXDB_TOKEN = os.environ["INFLUXDB_TOKEN"]
 INFLUXDB_BUCKET = os.environ["INFLUXDB_BUCKET"]
 INFLUXDB_ORG = os.environ["INFLUXDB_ORG"]
 BASE_MOONRAKER_HOST = os.environ["BASE_MOONRAKER_HOST"]
-DEBUG = os.getenv("DEBUG", False)
+DEBUG = bool(os.getenv("DEBUG", False))
 
 
 write_client = influxdb_client.InfluxDBClient(
@@ -64,7 +65,7 @@ async def identify_client(ws):
 
 
 def subscribe_to_objects(connection_id):
-    endpoint = f"/printer/objects/subscribe?connection_id={connection_id}&motion_report"
+    endpoint = f"/printer/objects/subscribe?connection_id={connection_id}&motion_report&gcode_move"
     url = f"http://{BASE_MOONRAKER_HOST}{endpoint}"
     response = requests.post(url)
 
@@ -130,7 +131,20 @@ def process_data(data):
 
         point.time(point_time, WritePrecision.NS)
 
-        write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
+        try:
+            write_api.write(bucket=INFLUXDB_BUCKET, org=INFLUXDB_ORG, record=point)
+        except ReadTimeoutError:
+            pass  # it's a single missed datapoint, don't crash the process yet
+
+    if "gcode_move" in data_json.get("params", [{}])[0]:
+        gcode_move = data_json["params"][0]["gcode_move"]
+
+        point = Point("gcode_move").tag("source", "moonraker")
+
+        if "speed" in gcode_move:
+            point.field("speed", gcode_move["speed"])
+
+        point.time(point_time, WritePrecision.NS)
 
 
 # Start the WebSocket connection, identify your client, and subscribe to the desired objects
